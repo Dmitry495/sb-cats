@@ -1,0 +1,174 @@
+body {
+	margin: 0;
+	font-family: "Comic Sans MS", sans-serif;
+}
+
+*,
+*:before,
+*:after {
+	box-sizing: border-box;
+}
+
+a,
+p,
+h1,
+h2,
+h3,
+h4 {
+	margin: 0;
+}
+
+/* header */
+
+header {
+border-bottom: 1px solid #0006;
+}
+
+.header__block {
+	margin: 20px auto;
+	max-width: 1000px;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+
+}
+
+.header__logo {
+	width: 100px;
+}
+
+/* main */
+main {
+	margin: 30px auto;
+	max-width: 1000px;
+	display: grid;
+	grid-template-columns: 300px 300px 300px;
+	grid-template-rows: 300px 300px 300px;
+	grid-gap: 50px;
+}
+
+.main__card {
+	padding: 25px;
+	border-radius: 10px;
+	box-shadow: 0 0 5px #0006;
+	cursor: pointer;
+	display: flex;
+	flex-direction: column;
+	text-align: center;
+}
+
+.main__card:hover {
+	transform: scale(1.1);
+	transition: 1s;
+
+}
+
+.main__img {
+	width: 240px;
+	height: 150px;
+	background-repeat: no-repeat;
+	background-size: cover;
+	background-position: center;
+	opacity: 0.6;
+	border-radius: 10px
+}
+
+.main__img:hover {
+	opacity: 1;
+	transition: 1s;
+}
+
+.main__name {
+	margin-top: 15px;
+}
+.main__rating {
+	margin-top: 15px;
+	display: flex;
+	margin-left: 35px;
+	width: 15px;
+}
+
+/* footer */
+
+footer {
+	border-top: 1px solid #0006;
+	}
+	
+.footer__text {
+	padding: 15px 50px;
+}
+
+/* modal window*/
+.modal {
+	position: fixed;
+	left: 0;
+	right: 0;
+	top: 0;
+	bottom: 0;
+	background-color: #0008;
+}
+
+.modal__active {
+	display: none;
+}
+
+.modal__card {
+	position: fixed;
+	top: calc(50vh - 200px);
+	left: calc(50vw - 150px);
+	padding: 15px;
+	width: 400px;
+	height: 300px;
+	display: flex;
+	box-shadow: 0 0 5px #0006;
+	background-color: #ffffff;
+	z-index: 1;
+	opacity: 2;
+}
+
+.modal__card-active {
+	display: none;
+}
+
+.info {
+	display: flex;
+	flex-direction: column;
+
+}
+
+.modal__close {
+	position: absolute;
+	right: 40px;
+	width: 50px;
+	cursor: pointer;
+
+}
+
+/* media */
+@media (max-width: 820px) {
+	.header__block {
+		padding: 0 25px;
+	}
+
+	main {
+		margin-left: calc(50vw - 315px);
+		grid-template-columns: 300px 300px;
+		grid-template-rows: 300px 300px;
+		grid-gap: 25px;
+	}
+
+}
+
+@media(max-width: 540px) {
+	main {
+		margin-left: calc(50vw - 150px);
+		grid-template-columns: 300px;
+	}
+
+	.modal__card {
+		display: flex;
+		flex-direction: column;
+		max-width: 320px;
+	}
+
+}
