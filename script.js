@@ -1,114 +1,97 @@
-document.addEventListener('DOMContentLoaded', function (event) {
+'use strict';
 
-	//создаем элементы для body
-	const header = document.createElement('header'),
-		main = document.createElement('main'),
-		footer = document.createElement('footer');
-	//document.body.append(header, main, footer);
+const mainContainer = document.querySelector('.main__container');
 
-	//hedaer
-	const headerBlock = document.createElement('div');
-	headerBlock.className = 'header__block';
-	header.append(headerBlock);
+//main
+cats.forEach(i => {
+	mainContainer.innerHTML += `
+		<div class="main__card" id="${i.id}">
+        <div class="main__img" style="background-image: url(${i.img_link})"></div>
+        <h3 class="main__name">${i.name}</h3>
+        <div class="main__rating" data-rate='${i.rate}'></div>
+    </div>`
+});
 
-	const headerLogo = document.createElement('img');
-	headerLogo.className = 'header__logo';
-	headerLogo.src = 'img/cat-fill.svg';
+const mainCard = document.querySelectorAll('.main__card'),
+	mainRat = document.querySelectorAll('.main__rating'),
+	coodCat = ['img/cat-fill.svg'],
+	sadCat = ['img/cat-stroke.svg'];
 
-	const headerText = document.createElement('h3');
-	headerText.className = 'header__text';
-	headerText.innerHTML = 'Бабулькинины котики';
-	headerBlock.append(headerLogo, headerText);
+mainRat.forEach(item => {
+	let n = '';
+	let antiLike = 10 - +item.getAttribute('data-rate');
 
-	//main
-	cats.forEach(i => {
-		main.innerHTML += `
-<div class="main__card">
-			<div class="main__img"
-				style="background-image: url(${i.img_link})"
-				alt="cat"></div>
-			<h3 class="main__name">${i.name}</h3>
-			<div class="main__rating">
-				<img src="img/cat-fill.svg" alt="rating">
-				<img src="img/cat-fill.svg" alt="rating">
-				<img src="img/cat-fill.svg" alt="rating">
-				<img src="img/cat-fill.svg" alt="rating">
-				<img src="img/cat-fill.svg" alt="rating">
-				<img src="img/cat-fill.svg" alt="rating">
-				<img src="img/cat-fill.svg" alt="rating">
-				<img src="img/cat-fill.svg" alt="rating">
-				<img src="img/cat-fill.svg" alt="rating">
-			</div>
-		</div>`
-	});
+	for (let i = 0; i < +item.getAttribute('data-rate'); i++) {
+		n += `<image src=${coodCat}>`;
+		item.innerHTML = n;
+	}
 
-	//footer
-	const footerText = document.createElement('h2');
-	footerText.className = 'footer__text';
-	footerText.textContent = '©2022 All rights reserved';
-	footer.append(footerText);
+	if (antiLike) {
+		for (let i = 0; i < antiLike; i++) {
+			n += `<image src=${sadCat}>`;
+			item.innerHTML = n;
+		}
+	}
+})
 
+//modal
+const modal = document.querySelector('.modal');
 
-	//modal
-
-	const modal = document.createElement('div');
-	modal.className = 'modal modal__active';
-
-	document.body.append(header, main, footer, modal);
-
+mainCard.forEach(card => {
 
 	cats.forEach(i => {
-		modal.innerHTML += `
-	<div class="modal__card modal__card-active">
-	<img class="modal__img" src="erg" alt="cate" width="200" height="200">
-	<image class="modal__close" src="img/close.png" alt="close">
-		<div class="info">
-			<div class="open__name">
-				<h3>${i.name}</h3>
-			</div>
-			<div class="age">
-				<h4>${i.age}</h4>
-			</div>
-			<p class="text">${i.description}</p>
-		</div>`
-		// card.addEventListener('click', e () =>  )
+		let n = '';
+
+		let age = '';
+		if (i.age == 1) {
+			age = 'год';
+		} else if (i.age >= 2 && i.age <= 4) {
+			age = 'года';
+		} else {
+			age = 'лет'
+		}
+
+		n = `
+	<div class="modal__card modal__card-active" data-id=${i.id}>
+	<img class="modal__img" src="${i.img_link}" alt="cate">
+	
+		<div class="modal__info">
+			<image class="modal__close-img" src="img/close.png" alt="close">
+			<h2 class="modal__name">${i.name}</h2>
+			<h3 class="modal__age">${i.age} ${age}</h3>
+			<p class="modal__text">${i.description}</p>
+		</div>
+	</div>`
+
+		card.addEventListener('click', () => {
+			modal.classList.remove('modal__close')
+			document.body.style.overflow = 'hidden';
+			if (card.getAttribute('id') == i.id) {
+				modal.innerHTML = n;
+			}
+			const closeCard = document.querySelector('.modal__close-img');
+			closeCard.addEventListener('click', modalClose)
+		})
+
 	});
+})
 
-	const closeCard = document.querySelector('.modal__close'),
-		card = document.querySelectorAll('.main__card'),
-		info = document.querySelector('.modal__card');
+//закрываем модальное окно
+function modalClose() {
+	modal.classList.add('modal__close');
+	document.body.style.overflow = '';
+};
 
-		//закрываем модальное окно
-		function closeInfo() {
-			info.classList.add('modal__card-active');
-			modal.classList.add('modal__active');
-			document.body.style.overflow = '';
-		};
+//закрываем модальное окно при нажатии кнопки Esc
+document.addEventListener('keydown', (e) => {
+	if (e.code === 'Escape') {
+		modalClose()
+	}
+})
 
-		//открываем модальное окно
-		card.forEach(item => {
-			item.addEventListener('click', () => {
-				
-				info.classList.remove('modal__card-active');
-				modal.classList.remove('modal__active')
-				document.body.style.overflow = 'hidden';
-			})
-		})
-
-		//закрываем модальное окно при нажатии кнопки Esc
-		document.addEventListener('keydown', (e) => {
-			if (e.code === 'Escape') {
-				closeInfo()
-			}
-		})
-
-		//закрываем модальное окно при клике вне элемента
-		modal.addEventListener('click', (e) => {
-			if (e.target === modal) {
-				closeInfo();
-			}
-		})
-
-		closeCard.addEventListener('click', closeInfo)
-
+//закрываем модальное окно при клике вне элемента
+modal.addEventListener('click', (e) => {
+	if (e.target === modal) {
+		modalClose();
+	}
 })
