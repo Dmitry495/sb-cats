@@ -43,6 +43,7 @@ catsApi.forEach(i => {
 		<button type='button' class='main__btn-delete'>Удалить</button>
     </div>`
 
+	
 	//удаляем карточки с котами
 	const catDelete = document.querySelector('.main__btn-delete'),
 		  mainCard = document.querySelectorAll('.main__card')
@@ -121,18 +122,19 @@ mainCard.forEach(card => {
 		</div>
 	</div>`
 
-		// card.addEventListener('click', () => {
-		// 	modal.classList.remove('modal__close')
-		// 	document.body.style.overflow = 'hidden';
-		// 	if (card.getAttribute('id') == i.id) {
-		// 		modal.innerHTML = n;
-		// 	}
-		// 	const closeCard = document.querySelector('.modal__close-img');
-		// 	closeCard.addEventListener('click', modalClose)
-		// })
+		card.addEventListener('click', () => {
+			modal.classList.remove('modal__close')
+			document.body.style.overflow = 'hidden';
+			if (card.getAttribute('id') == i.id) {
+				modal.innerHTML = n;
+			}
+			const closeCard = document.querySelector('.modal__close-img');
+			closeCard.addEventListener('click', modalClose)
+		})
 
 	});
 })
+
 
 //закрываем модальное окно
 function modalClose() {
