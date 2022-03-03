@@ -1,7 +1,7 @@
 'use strict';
 
 if(Cookies.get('user')) {
-	window.location.replace('/');
+	window.location.replace('./index.html');
 }
 
 const form = document.querySelector('.auth__enter'),
@@ -12,7 +12,7 @@ form.addEventListener('submit', (e) => {
 	if(input.value.trim() !== '') {
 		document.cookie = `user=${input.value}; secure`;
 		input.value = '';
-		window.location.replace('/');
+		window.location.replace('./index.html');
 	} else {
 		alert('Введите имя');
 	}
