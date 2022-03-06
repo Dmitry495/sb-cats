@@ -7,21 +7,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 	const mainContainer = document.querySelector('.main__container'),
-		  btnReload = document.querySelector('.main__btn-reload'),
-		  modal = document.querySelector('.modal');
+		btnReload = document.querySelector('.main__btn-reload');
 
-
-	//main 
+	//main
 
 	//создаем локальное хранилище и добавляем данные из API
 	async function getCats() {
-		return await fetch('https://sb-cats.herokuapp.com/api/show')
+		await fetch('https://sb-cats.herokuapp.com/api/show')
 			.then((res) => {
 				if (res.ok) {
-					console.log(res.json);
 					return res.json();
 				}
-				return Promise.reject(res);
+				return Promise.res.json()
 			})
 			.then(({
 				data
@@ -34,11 +31,11 @@ document.addEventListener("DOMContentLoaded", () => {
 				console.log(arr);
 			})
 	}
-	getCats();
+	getCats()
 
 	let catsApi = JSON.parse(localStorage.getItem('cats'));
 
-	//add carts cats
+	//создаем карточки с котами
 	catsApi.forEach(i => {
 		mainContainer.innerHTML += `
 		<div class="main__card" id="${i.id}">
@@ -48,6 +45,34 @@ document.addEventListener("DOMContentLoaded", () => {
 		<button type='button' class='main__btn-change'>Изменить</button>
 		<button type='button' class='main__btn-delete'>Удалить</button>
     </div>`
+
+
+		//удаляем карточки с котами
+		const catDelete = document.querySelector('.main__btn-delete'),
+			mainCard = document.querySelectorAll('.main__card')
+
+		function btnDelete() {
+			fetch(`https://sb-cats.herokuapp.com/api/delete/${i.id}`, {
+					method: 'DELETE'
+				})
+				.then((res) => {
+					if (res.ok) {
+						return res.json();
+					}
+					return Promise.reject(res)
+				})
+				.then((data) => {
+					console.log(i.id);
+					if (data.message === 'ok') {
+						mainCard.remove();
+						const oldData = getLocalStorageData('catsApi');
+						const newData = oldData.filter(item => item.id !== i.id);
+						setLocalStorageData('catsApi', newData);
+						console.log(i.id);
+					}
+				})
+		}
+		catDelete.addEventListener('click', btnDelete)
 	});
 
 	const mainCard = document.querySelectorAll('.main__card'),
@@ -72,10 +97,10 @@ document.addEventListener("DOMContentLoaded", () => {
 		}
 	})
 
-	//add modal
-	
+	//modal
+	const modal = document.querySelector('.modal');
+
 	mainCard.forEach(card => {
-		// console.log(card.lastElementChild);
 		catsApi.forEach(i => {
 			let n = '';
 
@@ -89,16 +114,16 @@ document.addEventListener("DOMContentLoaded", () => {
 			}
 
 			n = `
-				<div class="modal__card modal__card-active" data-id=${i.id}>
-					<img class="modal__img" src="${i.img_link}" alt="cate">
+	<div class="modal__card modal__card-active" data-id=${i.id}>
+	<img class="modal__img" src="${i.img_link}" alt="cate">
 	
-					<div class="modal__info">
-						<image class="modal__close-img" src="img/close.png" alt="close">
-						<h2 class="modal__name">${i.name}</h2>
-						<h3 class="modal__age">${i.age} ${age}</h3>
-						<p class="modal__text">${i.description}</p>
-					</div>
-				</div>`
+		<div class="modal__info">
+			<image class="modal__close-img" src="img/close.png" alt="close">
+			<h2 class="modal__name">${i.name}</h2>
+			<h3 class="modal__age">${i.age} ${age}</h3>
+			<p class="modal__text">${i.description}</p>
+		</div>
+	</div>`
 
 			card.addEventListener('click', () => {
 				modal.classList.remove('modal__close')
@@ -107,35 +132,38 @@ document.addEventListener("DOMContentLoaded", () => {
 					modal.innerHTML = n;
 				}
 				const closeCard = document.querySelector('.modal__close-img');
+				closeCard.addEventListener('click', modalClose)
 			})
-	
+
 			//delete cats
-			card.lastElementChild.addEventListener("click", (e) => {
-				
-				let a = e.path[1].getAttribute('id');
-				if(a == i.id) {
-					console.log(1);
-					fetch(`https://sb-cats.herokuapp.com/api/delete/${i.id}`, {
-						method: "DELETE"
-					})
-						.then((res) => {
-							if (res.ok) {
-								return res.json();
-							}
-			
-							return Promise.reject(res)
-						})
-						.then((data) => {
-							
-							if(data.message === 'ok'){
-								card.remove();
-								const oldData = getLocalStorageData('cats');
-								const newData = oldData.filter(item => item.id !== i.id);
-								setLocalStorageData('cats', newData)
-						}
-					})
-				}	
-			})
+            card.lastElementChild.addEventListener("click", (e) => {
+                
+                let a = e.path[1].getAttribute('id');
+                if(a == i.id) {
+                    console.log(1);
+                    fetch(`https://sb-cats.herokuapp.com/api/delete/${i.id}`, {
+                        method: "DELETE"
+                    })
+                        .then((res) => {
+                            if (res.ok) {
+                                return res.json();
+                            }
+            
+                            return Promise.reject(res)
+                        })
+                        .then((data) => {
+                            
+                            if(data.message === 'ok'){
+                                card.remove();
+                                const oldData = getLocalStorageData('cats');
+                                const newData = oldData.filter(item => item.id !== i.id);
+                                setLocalStorageData('cats', newData)
+                        }
+                    })
+                }   
+            })
+
+
 		});
 	})
 
