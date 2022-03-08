@@ -1,201 +1,214 @@
-document.addEventListener("DOMContentLoaded", () => {
-	'use strict';
-	//кука для входа на страницу
-	if (!Cookies.get('user')) {
-		window.location.replace('./enter.html');
-	}
+'use strict';
 
+//кука для входа на страницу
+if (!Cookies.get('user')) {
+    window.location.replace('./enter.html');
+}
 
-	const mainContainer = document.querySelector('.main__container'),
-		btnReload = document.querySelector('.main__btn-reload');
+const rootPopup = document.querySelector('.root-popup'),
+    popup = document.querySelector('.popup'),
+    popupCats = document.querySelector('.popup_type_cats-info'),
+    popupAddCats = document.querySelector('.popup_type_cats-add'),
+    popupEditCats = document.querySelector('.popup_type_cats-edit'),
+    formAdd = popupAddCats.querySelector('.popup__form'),
+    formEdit = popupEditCats.querySelector('.popup__form'),
+    inputId = formAdd.querySelector('#id'),
+    inputName = formAdd.querySelector('#name'),
+    inputImg = formAdd.querySelector('#img_link'),
+    inputDesc = formAdd.querySelector('#description'),
+    popupCatsImage = popupCats.querySelector('.popup__image'),
+    popupCatsText = popupCats.querySelector('.popup__text'),
+    popupCateRate = popupCats.querySelector('.popup__rate'),
+    popupCateAge = popupCats.querySelector('.popup__age'),
+    popupCatsName = popupCats.querySelector('.popup__name'),
+    catImages = document.querySelectorAll('.cat__image'),
+    closePopupCats = document.querySelector('.popup__close'),
+    cardTemplate = document.querySelector('#card-tempalte'),
+    cardListContainer = document.querySelector('.cats-list'),
+    buttonReloadData = document.querySelector('.reload-data'),
+    buttonAddCat = document.querySelector('#button-add-cat');
 
-	//main
+function formSerialize(form) {
+    const result = {}
+    const inputs = form.querySelectorAll('input');
+    inputs.forEach(input => {
+        result[input.name] = input.value;
+    })
+    return result;
+}
 
-	//создаем локальное хранилище и добавляем данные из API
-	async function getCats() {
-		await fetch('https://sb-cats.herokuapp.com/api/show')
-			.then((res) => {
-				if (res.ok) {
-					return res.json();
-				}
-				return Promise.res.json()
-			})
-			.then(({
-				data
-			}) => {
-				localStorage.setItem('cats', JSON.stringify(data));
+function getLocalStorageData(key) {
+    return JSON.parse(localStorage.getItem(key));
+}
 
-				return data;
-			})
-			.catch(arr => {
-				console.log(arr);
-			})
-	}
-	getCats()
+function setLocalStorageData(key, data) {
+    localStorage.setItem(key, JSON.stringify(data));
+}
 
-	let catsApi = JSON.parse(localStorage.getItem('cats'));
+function openPopup(popup) {
+    popup.classList.add('popup_opened');
+    document.body.style.overflow = 'hidden';
 
-	//создаем карточки с котами
-	catsApi.forEach(i => {
-		mainContainer.innerHTML += `
-		<div class="main__card" id="${i.id}">
-        <div class="main__img" style="background-image: url(${i.img_link})"></div>
-        <h3 class="main__name">${i.name}</h3>
-        <div class="main__rating" data-rate='${i.rate}'></div>
-		<button type='button' class='main__btn-change'>Изменить</button>
-		<button type='button' class='main__btn-delete'>Удалить</button>
-    </div>`
+}
 
+function handleClickCloseBtn(event) {
+    if (event.target.classList.contains('popup__close')) {
+        closePopup();
+    }
+}
 
-		//удаляем карточки с котами
-		const catDelete = document.querySelector('.main__btn-delete'),
-			mainCard = document.querySelectorAll('.main__card')
+function closePopup() {
+    const popopActive = document.querySelector('.popup_opened');
+    if (popopActive) {
+        popopActive.classList.remove('popup_opened');
+    }
+    document.body.style.overflow = '';
+}
 
-		function btnDelete() {
-			fetch(`https://sb-cats.herokuapp.com/api/delete/${i.id}`, {
-					method: 'DELETE'
-				})
-				.then((res) => {
-					if (res.ok) {
-						return res.json();
-					}
-					return Promise.reject(res)
-				})
-				.then((data) => {
-					console.log(i.id);
-					if (data.message === 'ok') {
-						mainCard.remove();
-						const oldData = getLocalStorageData('catsApi');
-						const newData = oldData.filter(item => item.id !== i.id);
-						setLocalStorageData('catsApi', newData);
-						console.log(i.id);
-					}
-				})
-		}
-		catDelete.addEventListener('click', btnDelete)
-	});
-
-	const mainCard = document.querySelectorAll('.main__card'),
-		mainRat = document.querySelectorAll('.main__rating'),
-		coodCat = ['img/cat-fill.svg'],
-		sadCat = ['img/cat-stroke.svg'];
-
-	mainRat.forEach(item => {
-		let n = '';
-		let antiLike = 10 - +item.getAttribute('data-rate');
-
-		for (let i = 0; i < +item.getAttribute('data-rate'); i++) {
-			n += `<image src=${coodCat}>`;
-			item.innerHTML = n;
-		}
-
-		if (antiLike) {
-			for (let i = 0; i < antiLike; i++) {
-				n += `<image src=${sadCat}>`;
-				item.innerHTML = n;
-			}
-		}
-	})
-
-	//modal
-	const modal = document.querySelector('.modal');
-
-	mainCard.forEach(card => {
-		catsApi.forEach(i => {
-			let n = '';
-
-			let age = '';
-			if (i.age == 1) {
-				age = 'год';
-			} else if (i.age >= 2 && i.age <= 4) {
-				age = 'года';
-			} else {
-				age = 'лет'
-			}
-
-			n = `
-	<div class="modal__card modal__card-active" data-id=${i.id}>
-	<img class="modal__img" src="${i.img_link}" alt="cate">
-	
-		<div class="modal__info">
-			<image class="modal__close-img" src="img/close.png" alt="close">
-			<h2 class="modal__name">${i.name}</h2>
-			<h3 class="modal__age">${i.age} ${age}</h3>
-			<p class="modal__text">${i.description}</p>
-		</div>
-	</div>`
-
-			card.addEventListener('click', () => {
-				modal.classList.remove('modal__close')
-				document.body.style.overflow = 'hidden';
-				if (card.getAttribute('id') == i.id) {
-					modal.innerHTML = n;
-				}
-				const closeCard = document.querySelector('.modal__close-img');
-				closeCard.addEventListener('click', modalClose)
-			})
-
-			//delete cats
-            card.lastElementChild.addEventListener("click", (e) => {
-                
-                let a = e.path[1].getAttribute('id');
-                if(a == i.id) {
-                    console.log(1);
-                    fetch(`https://sb-cats.herokuapp.com/api/delete/${i.id}`, {
-                        method: "DELETE"
-                    })
-                        .then((res) => {
-                            if (res.ok) {
-                                return res.json();
-                            }
-            
-                            return Promise.reject(res)
-                        })
-                        .then((data) => {
-                            
-                            if(data.message === 'ok'){
-                                card.remove();
-                                const oldData = getLocalStorageData('cats');
-                                const newData = oldData.filter(item => item.id !== i.id);
-                                setLocalStorageData('cats', newData)
-                        }
-                    })
-                }   
-            })
-
-
-		});
-	})
-
-
-	//закрываем модальное окно
-	function modalClose() {
-		modal.classList.add('modal__close');
-		document.body.style.overflow = '';
-	};
-
-	//закрываем модальное окно при нажатии кнопки Esc
-	document.addEventListener('keydown', (e) => {
-		if (e.code === 'Escape') {
-			modalClose()
-		}
-	})
-
-	//закрываем модальное окно при клике вне элемента
-	modal.addEventListener('click', (e) => {
-		if (e.target === modal) {
-			modalClose();
-		}
-	})
-
-
-	//обновление страницы
-	function getReload() {
-		localStorage.clear();
-		catsApi.innerHTML = '';
-		getCats();
-	}
-
-	btnReload.addEventListener('click', getReload);
-
+document.addEventListener('keydown', (e) => {
+    if (e.code === 'Escape') {
+        closePopup();
+    }
 })
+
+popup.addEventListener('click', (e) => {
+    if (e.target === popup) {
+        closePopup()
+    }
+})
+
+function createCardCat(dataCat) {
+    const newCardElement = cardTemplate.content.querySelector('.cats-list__item').cloneNode(true);
+    const cardImage = newCardElement.querySelector('.cat__image');
+    const cardName = newCardElement.querySelector('.cat__title');
+    const cardButtonDelete = newCardElement.querySelector('.cat__delete');
+    const cardButtonEdit = newCardElement.querySelector('.cat__edit');
+    cardImage.src = dataCat.img_link;
+    cardImage.dataset.id = dataCat.id;
+    cardName.textContent = dataCat.name;
+    
+    function handleClickCatImage() {
+        popupCatsImage.src = dataCat.img_link;
+        popupCatsName.textContent = dataCat.name;
+        popupCatsText.textContent = dataCat.description;
+        let n = '';
+        if (dataCat.age === 1) {
+            n = 'год';
+        } else if (dataCat.age >= 2 && dataCat.age <= 4) {
+            n = 'года';
+        } else {
+            n = 'лет'
+        }
+        popupCateAge.textContent = `${dataCat.age} ${n}`;
+        openPopup(popupCats)
+    }
+
+    function handleClickCatEdit() {
+        const inputs = formEdit.querySelectorAll('input');
+        inputs.forEach(input => {
+            input.value = dataCat[input.name];
+        });
+        openPopup(popupEditCats)
+    }
+
+    function handleClickButtonDelete() {
+        if(confirm('Вы точно хотите удалить котика?')) {
+            console.log('yes');
+            fetch(`https://sb-cats.herokuapp.com/api/delete/${dataCat.id}`, {
+                method: 'DELETE'
+            })
+            .then((response) => {
+                if (response.ok) {
+                    return response.json();
+                }
+                return Promise.reject(response)
+            })
+            .then((data) => {
+                console.log(data);
+                if (data.message === 'ok') {
+                    newCardElement.remove();
+                    const oldData = getLocalStorageData('cats');
+                    const newData = oldData.filter(item => item.id !== dataCat.id);
+                    setLocalStorageData('cats', newData);
+                }
+            })
+        };
+}
+
+    cardButtonEdit.addEventListener('click', handleClickCatEdit)
+    cardButtonDelete.addEventListener('click', handleClickButtonDelete)
+    cardImage.addEventListener('click', handleClickCatImage)
+
+    return newCardElement;
+}
+
+function cardAddToContainer(elementNode, container) {
+    container.append(elementNode)
+}
+
+function getCats() {
+    fetch('https://sb-cats.herokuapp.com/api/show')
+        .then((response) => {
+            if (response.ok) {
+                return response.json();
+            }
+            return Promise.reject(response)
+        })
+        .then(({
+            data
+        }) => {
+            localStorage.setItem('cats', JSON.stringify(data))
+            data.forEach(dataCat => cardAddToContainer(createCardCat(dataCat), cardListContainer))
+        })
+        .catch(err => {
+            console.log(err);
+        })
+
+}
+
+function handleClickButtonAdd() {
+    openPopup(popupAddCats)
+}
+
+console.log(formAdd.elements);
+
+
+formAdd.addEventListener('submit', (evt) => {
+    evt.preventDefault();
+    const bodyJSON = formSerialize(formAdd)
+
+    fetch('https://sb-cats.herokuapp.com/api/add', {
+            method: 'POST',
+            body: JSON.stringify(bodyJSON),
+            headers: {
+                "Content-type": "application/json"
+            }
+        })
+        .then((response) => {
+            if (response.ok) {
+                return response.json();
+            }
+            return Promise.reject(response)
+        })
+        .then((data) => {
+            if (data.message === 'ok') {
+                reloadData();
+                closePopup();
+            }
+        })
+        .catch(err => {
+            console.log(err);
+        })
+})
+
+function reloadData() {
+    localStorage.clear();
+    cardListContainer.innerHTML = "";
+    getCats()
+}
+
+buttonAddCat.addEventListener('click', handleClickButtonAdd)
+rootPopup.addEventListener('click', handleClickCloseBtn);
+buttonReloadData.addEventListener('click', reloadData)
+
+getCats();
